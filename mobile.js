@@ -1,61 +1,51 @@
 let highestZ = 1;
 
 class Paper {
-  holdingPaper = false;
-  touchStartX = 0;
-  touchStartY = 0;
-  touchMoveX = 0;
-  touchMoveY = 0;
-  prevTouchX = 0;
-  prevTouchY = 0;
-  velX = 0;
-  velY = 0;
-  rotation = Math.random() * 30 - 15;
-  currentPaperX = 0;
-  currentPaperY = 0;
+  isDragging = false;
+  startX = 0;
+  startY = 0;
+  currentX = 0;
+  currentY = 0;
+  offsetX = 0;
+  offsetY = 0;
 
   init(paper) {
-    // Dragging logic
-    paper.addEventListener('touchstart', (e) => {
-      if (this.holdingPaper) return; // Prevent re-initializing
-      this.holdingPaper = true;
+    paper.style.touchAction = "none"; // Prevent default gestures
 
-      // Bring the paper to the front
+    // Start dragging
+    paper.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      this.isDragging = true;
+
+      // Bring the element to the front
       paper.style.zIndex = highestZ++;
-      this.touchStartX = e.touches[0].clientX;
-      this.touchStartY = e.touches[0].clientY;
-      this.prevTouchX = this.touchStartX;
-      this.prevTouchY = this.touchStartY;
+      this.startX = e.touches[0].clientX - this.offsetX;
+      this.startY = e.touches[0].clientY - this.offsetY;
     });
 
-    paper.addEventListener('touchmove', (e) => {
-      if (!this.holdingPaper) return;
+    // Dragging
+    paper.addEventListener("touchmove", (e) => {
+      if (!this.isDragging) return;
 
-      e.preventDefault(); // Prevent scrolling while dragging
-      this.touchMoveX = e.touches[0].clientX;
-      this.touchMoveY = e.touches[0].clientY;
+      e.preventDefault();
+      this.currentX = e.touches[0].clientX - this.startX;
+      this.currentY = e.touches[0].clientY - this.startY;
+      this.offsetX = this.currentX;
+      this.offsetY = this.currentY;
 
-      this.velX = this.touchMoveX - this.prevTouchX;
-      this.velY = this.touchMoveY - this.prevTouchY;
-
-      this.currentPaperX += this.velX;
-      this.currentPaperY += this.velY;
-
-      this.prevTouchX = this.touchMoveX;
-      this.prevTouchY = this.touchMoveY;
-
-      // Update position
-      paper.style.transform = `translateX(${this.currentPaperX}px) translateY(${this.currentPaperY}px) rotateZ(${this.rotation}deg)`;
+      // Move the paper
+      paper.style.transform = `translate(${this.currentX}px, ${this.currentY}px)`;
     });
 
-    paper.addEventListener('touchend', () => {
-      this.holdingPaper = false; // Stop dragging
+    // Stop dragging
+    paper.addEventListener("touchend", () => {
+      this.isDragging = false;
     });
   }
 }
 
 // Initialize all papers
-const papers = Array.from(document.querySelectorAll('.paper'));
+const papers = document.querySelectorAll(".paper");
 papers.forEach((paper) => {
   const p = new Paper();
   p.init(paper);
