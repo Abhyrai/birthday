@@ -19,8 +19,9 @@ class Paper {
 
       // Bring the element to the front
       paper.style.zIndex = highestZ++;
-      this.startX = e.touches[0].clientX - this.offsetX;
-      this.startY = e.touches[0].clientY - this.offsetY;
+      const touch = e.touches[0];
+      this.startX = touch.clientX - this.offsetX;
+      this.startY = touch.clientY - this.offsetY;
     });
 
     // Dragging
@@ -28,8 +29,9 @@ class Paper {
       if (!this.isDragging) return;
 
       e.preventDefault();
-      this.currentX = e.touches[0].clientX - this.startX;
-      this.currentY = e.touches[0].clientY - this.startY;
+      const touch = e.touches[0];
+      this.currentX = touch.clientX - this.startX;
+      this.currentY = touch.clientY - this.startY;
       this.offsetX = this.currentX;
       this.offsetY = this.currentY;
 
@@ -45,8 +47,7 @@ class Paper {
 }
 
 // Initialize all papers
-const papers = document.querySelectorAll(".paper");
-papers.forEach((paper) => {
+document.querySelectorAll(".paper").forEach((paper) => {
   const p = new Paper();
   p.init(paper);
 });
